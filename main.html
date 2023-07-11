@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="mainpage.css">
+  <style>
+    .low {
+      color: green;
+    }
+    
+    .medium {
+      color: orange;
+    }
+    
+    .high {
+      color: red;
+    }
+    
+    .completed {
+      text-decoration: line-through;
+    }
+  </style>
+  <title>ToDo List</title>
+</head>
+<body>
+  <h1>ToDo List</h1>
+  <form>
+    <div class="container">
+      <div class="input-container">
+        <input type="text" id="taskInput" placeholder="Enter a task">
+        <select id="prioritySelect">
+          <option value="low">Low Priority</option>
+          <option value="medium">Medium Priority</option>
+          <option value="high">High Priority</option>
+        </select>
+        <button onclick="addTask()">Add Task</button>
+      </div>
+      
+      <ul id="taskList" class="task-list">
+        <!-- Tasks will be dynamically added here -->
+      </ul>
+    </div>
+  </form>
+  <script>
+    // Get the stored tasks from local storage
+    var tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    // Display the stored tasks on page load
+    window.onload = function() {
+      displayTasks();
+    };
+
+    // Add a new task
+    function addTask() {
+      var taskInput = document.getElementById("taskInput");
+      var prioritySelect = document.getElementById("prioritySelect");
+      
+      if (taskInput.value === "") {
+        alert("Please enter a task!");
+        return;
+      }
+      
+      var task = {
+        name: taskInput.value,
+        priority: prioritySelect.value,
+        completed: false
+      };
+      
+      tasks.push(task);
+      saveTasks();
+      
+      taskInput.value = "";
+      
+      displayTasks();
+    }
+
+    // Display tasks on the page
+    function displayTasks() {
+      var taskList = document.getElementById("taskList");
+      taskList.innerHTML = "";
+      
+      for (var i = 0; i < tasks.length; i++) {
+        var task = tasks[i];
+        
+        var listItem = document.createElement("li");
+        listItem.innerHTML = `
+          <div class="task-name ${task.completed ? 'completed' : ''}">
+            <span class="priority ${task.priority}">${task.name}</span>
+          </div>
+          <button class="delete-button" onclick="deleteTask(${i})">Delete</button>
+        `;
+        
+        listItem.addEventListener("click", toggleTask.bind(null, i));
+        
+        taskList.appendChild(listItem);
+      }
+    }
+
+    // Toggle task completion
+    function toggleTask(index) {
+      tasks[index].completed = !tasks[index].completed;
+      saveTasks();
+      displayTasks();
+    }
+
+    // Delete a task
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      displayTasks();
+    }
+
+    // Save tasks to local storage
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+  </script>
+</body>
+</html>
